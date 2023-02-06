@@ -23,6 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 #binaries
-.exe
-.zip
-.tar.*
+*.exe
+*.zip
+*.tar.*
