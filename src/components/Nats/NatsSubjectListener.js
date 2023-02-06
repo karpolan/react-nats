@@ -32,7 +32,6 @@ const NatsSubjectListener = ({
       let natsSubscription;
 
       async function connectAndSubscribe() {
-        alert('connectAndSubscribe()');
         try {
           natsConnection = await connect({
             servers: [
@@ -49,7 +48,6 @@ const NatsSubjectListener = ({
       }
 
       async function unsubscribeAndClose() {
-        alert('unsubscribeAndClose()');
         try {
           natsSubscription?.unsubscribe();
           natsConnection?.close();
