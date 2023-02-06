@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { MessageList } from '../Messages';
 import { StringCodec, connect } from 'nats.ws';
-
-const FALLBACK_SERVERS = ['ws://localhost:1234'];
+import { MessageList } from '../Messages';
+import { MESSAGES_LIMIT, SERVERS_FALLBACK } from './utils';
 
 const natsStringCodec = StringCodec();
 
@@ -10,7 +9,7 @@ const NatsSubjectListener = ({
   server = 'ws://localhost:1234',
   subject = '>',
 }) => {
-  const [list, setList] = useState([]);
+  const [messages, setMessages] = useState([]);
 
   const onMessage = useCallback(
     (error, message) => {
@@ -19,9 +18,9 @@ const NatsSubjectListener = ({
         return;
       }
       const { data, headers, reply, subject, sid } = message;
-      setList((oldList) => [
+      setMessages((oldList) => [
         { data: natsStringCodec.decode(data), headers, reply, subject, sid },
-        ...oldList,
+        ...oldList.slice(0, MESSAGES_LIMIT),
       ]);
     },
     [] // Single instance of callback for entire life-time, created on component mount
@@ -33,11 +32,12 @@ const NatsSubjectListener = ({
       let natsSubscription;
 
       async function connectAndSubscribe() {
+        alert('connectAndSubscribe()');
         try {
           natsConnection = await connect({
             servers: [
               server, // configuration form props
-              ...FALLBACK_SERVERS, // optional fallback server(s)
+              ...SERVERS_FALLBACK, // optional fallback server(s)
             ],
           });
           natsSubscription = natsConnection.subscribe(subject, {
@@ -49,6 +49,7 @@ const NatsSubjectListener = ({
       }
 
       async function unsubscribeAndClose() {
+        alert('unsubscribeAndClose()');
         try {
           natsSubscription?.unsubscribe();
           natsConnection?.close();
@@ -62,13 +63,13 @@ const NatsSubjectListener = ({
         unsubscribeAndClose();
       };
     },
-    [server, onMessage] // Executed only when .server property changes, in 99% cases single time on component mount
+    [server, subject, onMessage] // Executed only when .server or .subject property changes, in 99% cases single time on component mount
   );
 
   return (
     <div>
       <h2>NatsSubjectListener</h2>
-      <MessageList list={list} />
+      <MessageList list={messages} />
     </div>
   );
 };
