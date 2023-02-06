@@ -1,4 +1,4 @@
-import { NatsSubjectListener } from './components/Nats';
+import { NatsSubjectListener } from './components';
 
 const App = () => {
   return (
