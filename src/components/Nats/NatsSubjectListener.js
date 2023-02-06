@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StringCodec, connect } from 'nats.ws';
+import { connect } from 'nats.ws';
 import { MessageList } from '../Messages';
-import { MESSAGES_LIMIT, SERVERS_FALLBACK } from './utils';
-
-const natsStringCodec = StringCodec();
+import {
+  MESSAGES_LIMIT,
+  SERVERS_FALLBACK,
+  SERVER_DEFAULT,
+  SUBJECT_DEFAULT,
+  natsStringCodec,
+} from './utils';
 
 const NatsSubjectListener = ({
-  server = 'ws://localhost:1234',
-  subject = '>',
+  server = SERVER_DEFAULT,
+  subject = SUBJECT_DEFAULT,
 }) => {
   const [messages, setMessages] = useState([]);
 
-  const onMessage = useCallback(
+  const onReceiveMessage = useCallback(
     (error, message) => {
       if (error) {
         console.error(error);
@@ -40,7 +44,7 @@ const NatsSubjectListener = ({
             ],
           });
           natsSubscription = natsConnection.subscribe(subject, {
-            callback: onMessage,
+            callback: onReceiveMessage,
           });
         } catch (error) {
           console.error(error);
@@ -61,12 +65,12 @@ const NatsSubjectListener = ({
         unsubscribeAndDisconnect();
       };
     },
-    [server, subject, onMessage] // Executed only when .server or .subject property changes, in 99% cases single time on component mount
+    [server, subject, onReceiveMessage] // Executed only when .server or .subject property changes, in 99% cases single time on component mount
   );
 
   return (
     <div>
-      <h2>NatsSubjectListener</h2>
+      <h2>Subscribed to "{subject}"</h2>
       <MessageList list={messages} />
     </div>
   );

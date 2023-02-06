@@ -7,7 +7,7 @@ const MessageList = ({ list }) => {
   const messagesToRender = list?.slice(0, MESSAGES_MAX_COUNT) || [];
   return (
     <div>
-      <h2>Last {MESSAGES_MAX_COUNT} messages</h2>
+      {/* <h3>Showing only last {MESSAGES_MAX_COUNT} messages</h3> */}
       {messagesToRender.length > 0 ? (
         messagesToRender.map((message, index) => (
           <MessageItem key={`${message.date}-${index}`} message={message} />
