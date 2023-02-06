@@ -47,7 +47,7 @@ const NatsSubjectListener = ({
         }
       }
 
-      async function unsubscribeAndClose() {
+      async function unsubscribeAndDisconnect() {
         try {
           natsSubscription?.unsubscribe();
           natsConnection?.close();
@@ -58,7 +58,7 @@ const NatsSubjectListener = ({
 
       connectAndSubscribe();
       return () => {
-        unsubscribeAndClose();
+        unsubscribeAndDisconnect();
       };
     },
     [server, subject, onMessage] // Executed only when .server or .subject property changes, in 99% cases single time on component mount
