@@ -4,7 +4,6 @@ import {
   NATS_CONNECTION_NAME,
   NATS_SERVERS_FALLBACK,
   NATS_SERVER_DEFAULT,
-  NATS_SUBJECT_DEFAULT,
   natsEncode,
 } from './utils';
 
