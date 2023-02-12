@@ -1,7 +1,7 @@
 import { MESSAGES_LIMIT } from '../Nats/utils';
 import MessageItem from './MessageItem';
 
-const MESSAGES_MAX_COUNT = Math.min(10, MESSAGES_LIMIT);
+const MESSAGES_MAX_COUNT = 10;
 
 const MessageList = ({ list }) => {
   const messagesToRender = list?.slice(0, MESSAGES_MAX_COUNT) || [];

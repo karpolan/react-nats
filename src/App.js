@@ -1,4 +1,8 @@
-import { NatsPublisher, NatsSubjectListener } from './components';
+import {
+  NatsServerConnector,
+  NatsPublisher,
+  NatsSubjectListener,
+} from './components';
 
 const App = () => {
   return (
@@ -6,6 +10,9 @@ const App = () => {
       <header>NATS clients built with React</header>
       <hr />
       <main style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        <div id="server">
+          <NatsServerConnector />
+        </div>
         <div
           id="listeners"
           style={{
@@ -15,7 +22,7 @@ const App = () => {
         >
           <NatsSubjectListener subject="subject1" />
           <NatsSubjectListener subject="subject2" />
-          <NatsSubjectListener subject="subject3" />
+          <NatsSubjectListener />
         </div>
         <div id="publisher">
           <NatsPublisher />

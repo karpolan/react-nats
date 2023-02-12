@@ -1,27 +1,22 @@
 import { useEffect, useId, useState } from 'react';
-import {
-  SERVERS_FALLBACK,
-  SERVER_DEFAULT,
-  SUBJECT_DEFAULT,
-  natsStringCodec,
-} from './utils';
 import { connect } from 'nats.ws';
+import {
+  NATS_CONNECTION_NAME,
+  NATS_SERVERS_FALLBACK,
+  NATS_SERVER_DEFAULT,
+  NATS_SUBJECT_DEFAULT,
+  natsEncode,
+} from './utils';
 
-const NatsPublisher = ({
-  server = SERVER_DEFAULT,
-  subject = SUBJECT_DEFAULT,
-}) => {
+const NatsPublisher = ({ server = NATS_SERVER_DEFAULT, subject }) => {
   const idSubject = useId();
   const idMessage = useId();
   const [connection, setConnection] = useState();
 
   const onSendMessage = (event) => {
     event.preventDefault();
-    const subject = event?.target?.[idSubject]?.value ?? '';
-    const data = natsStringCodec.encode(
-      event?.target?.[idMessage]?.value ?? ''
-    );
-    console.log({ subject, data });
+    const subject = event?.target?.[idSubject]?.value || 'default';
+    const data = natsEncode(event?.target?.[idMessage]?.value ?? '');
     connection?.publish(subject, data);
   };
 
@@ -32,9 +27,10 @@ const NatsPublisher = ({
       async function openConnection() {
         try {
           natsConnection = await connect({
+            name: NATS_CONNECTION_NAME, // TODO: Do we need this as property?
             servers: [
               server, // configuration form props
-              ...SERVERS_FALLBACK, // optional fallback server(s)
+              ...NATS_SERVERS_FALLBACK, // optional fallback server(s)
             ],
           });
           setConnection(natsConnection); // Save connection to state
@@ -67,19 +63,26 @@ const NatsPublisher = ({
 
   return (
     <div>
-      <h2>NatsPublisher</h2>
-      <div>Server: {server}</div>
-      <div>Subject: {subject}</div>
+      <h2>Publish message</h2>
 
       <form onSubmit={onSendMessage}>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <div>
             <label htmlFor={idSubject}>Subject</label>
-            <input id={idSubject} type="text" defaultValue={subject} />
+            <datalist id="subjects">
+              <option value="subject1">subject1</option>
+              <option value="subject2">subject2</option>
+            </datalist>
+            <input
+              id={idSubject}
+              type="text"
+              defaultValue={subject}
+              list="subjects"
+            />
           </div>
           <div>
-            <label htmlFor={idMessage}>Message</label>
-            <input id={idMessage} type="text" />
+            <label htmlFor={idMessage}>Data as Text or JSON</label>
+            <textarea id={idMessage} rows={3} />
           </div>
           <button type="submit">Send</button>
         </div>

@@ -2,16 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'nats.ws';
 import { MessageList } from '../Messages';
 import {
-  MESSAGES_LIMIT,
-  SERVERS_FALLBACK,
-  SERVER_DEFAULT,
-  SUBJECT_DEFAULT,
-  natsStringCodec,
+  NATS_CONNECTION_NAME,
+  NATS_SERVERS_FALLBACK,
+  NATS_SERVER_DEFAULT,
+  NATS_SUBJECT_DEFAULT,
+  natsDecode,
 } from './utils';
 
+const MESSAGES_LIMIT = 100;
+
 const NatsSubjectListener = ({
-  server = SERVER_DEFAULT,
-  subject = SUBJECT_DEFAULT,
+  server = NATS_SERVER_DEFAULT,
+  subject = NATS_SUBJECT_DEFAULT,
 }) => {
   const [messages, setMessages] = useState([]);
 
@@ -23,7 +25,7 @@ const NatsSubjectListener = ({
       }
       const { data, headers, reply, subject, sid } = message;
       setMessages((oldList) => [
-        { data: natsStringCodec.decode(data), headers, reply, subject, sid },
+        { data: natsDecode(data), headers, reply, subject, sid },
         ...oldList.slice(0, MESSAGES_LIMIT),
       ]);
     },
@@ -38,9 +40,10 @@ const NatsSubjectListener = ({
       async function connectAndSubscribe() {
         try {
           natsConnection = await connect({
+            name: NATS_CONNECTION_NAME, // TODO: Do we need this as property?
             servers: [
               server, // configuration form props
-              ...SERVERS_FALLBACK, // optional fallback server(s)
+              ...NATS_SERVERS_FALLBACK, // optional fallback server(s)
             ],
           });
           natsSubscription = natsConnection.subscribe(subject, {
